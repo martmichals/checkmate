@@ -1,0 +1,13 @@
+.boardTerminalContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+::-webkit-scrollbar{
+	width: 7px;
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: var(--scrollbar);
+  border-radius: 3px;
+}

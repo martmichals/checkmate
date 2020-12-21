@@ -1,14 +1,15 @@
 import './App.css'
-import BoardAndConsole from './components/BoardAndConsole'
+import THEMES from './common/themes.js'
+import ChessGame from './components/ChessGame'
 
-function App() {
+function App () {
   return (
-    <div className="App">
-      <header className="App-header">
-        <BoardAndConsole/>
-      </header>      
+    <div className='App'>
+      <header className='App-header' style={{ backgroundColor: THEMES.dark.mainBackground }}>
+        <ChessGame />
+      </header>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
