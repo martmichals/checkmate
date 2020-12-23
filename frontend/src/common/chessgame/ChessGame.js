@@ -23,27 +23,98 @@ class ChessGame {
   }
 
   /*
-  Pawn legal squares, ignore possible king exposure to check
+  Check the square in the matrix. Return 0 if empty, -1 if black, 1 if white
   */
+  getColor (position) {
+    const piece = this.board[position[0]][position[1]]
+    if (piece === ' ') return 0
+    else if (piece.toLowerCase() === piece) return -1
+    else return 1
+  }
+
+  /*
+  Pawn legal squares, ignore possible king exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
+  */
+  pawnLegalMoves (position) {
+    // Convert to matrix coordinates
+    const availablePositions = []
+    const coords = Conversions.chessToMatrix(position)
+    const isWhite = this.board[coords[0]][coords[1]] === 'P'
+
+    // Set analyzed rank for distance 1 moves
+    const firstRank = isWhite ? coords[0] - 1 : coords[0] + 1
+
+    // Check diagonal moves for black pieces
+    const oppositeColor = isWhite ? -1 : 1
+    const file1 = coords[1] + 1
+    const file2 = coords[1] - 1
+    if (file1 < 8 && this.getColor([firstRank, file1]) === oppositeColor) {
+      availablePositions.push(Conversions.matrixToChess([firstRank, file1]))
+    }
+    if (file2 >= 0 && this.getColor([firstRank, file2]) === oppositeColor) {
+      availablePositions.push(Conversions.matrixToChess([firstRank, file2]))
+    }
+
+    // Check for en passant move
+    if ([firstRank, file1] === this.enPassantOption) {
+      availablePositions.push(Conversions.matrixToChess([firstRank, file1]))
+    }
+    if ([firstRank, file2] === this.enPassantOption) {
+      availablePositions.push(Conversions.matrixToChess([firstRank, file2]))
+    }
+
+    // Check for normal forward move
+    let canMove1
+    if (firstRank < 0 || firstRank > 7) throw new Error('Illegal pawn on board')
+    else if (this.getColor([firstRank, coords[1]]) === 0) {
+      availablePositions.push(Conversions.matrixToChess([firstRank, coords[1]]))
+      canMove1 = true
+    }
+
+    // Check if the pawn may move two squares
+    const checkTwo = (isWhite && coords[0] === 6) || (!isWhite && coords[0] === 1)
+    if (checkTwo && canMove1 && this.getColor([coords[0] + oppositeColor * 2, coords[1]]) === 0) {
+      availablePositions.push(Conversions.matrixToChess([coords[0] + oppositeColor * 2, coords[1]]))
+    }
+
+    return availablePositions
+  }
 
   /*
   Rook legal squares, ignore possible king exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
   */
 
   /*
   Knight legal squares, ignore possible king exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
   */
 
   /*
   Bishop legal squares, ignore possible king exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
   */
 
   /*
   Queen legal squares, ignore possible king exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
   */
 
   /*
   King legal squares, ignore possible exposure to check
+  Position in algebraic notation
+  Returns in algebraic notation
+  */
+
+  /*
+  Static. Checks if the current board results in either the white or black king
+  being in check from ray pieces
   */
 
   /*
@@ -52,7 +123,6 @@ class ChessGame {
   */
   isValid (start, end, piece) {
     const startCoords = Conversions.chessToMatrix(start)
-    const endCoords = Conversions.chessToMatrix(end)
 
     // Make sure the pieces match the board state
     const thisPiece = this.board[startCoords[0]][startCoords[1]]
@@ -70,12 +140,19 @@ class ChessGame {
     if (this.whoseMove !== movedColor) return false
 
     // Check if the move is valid for the piece
+    let legalMoves
+    switch (thisPiece.toLowerCase()) {
+      case 'p':
+        legalMoves = this.pawnLegalMoves(start)
+        break
+      default:
+        throw new Error('Piece passed into switch statement is undefined')
+    }
+    console.log(legalMoves)
+    if (legalMoves.includes(end)) return true
 
-    // Check if the move exposes the king to check
+    // TODO : Check if the move exposes the king to check
 
-    console.log('start', startCoords)
-    console.log('end', endCoords)
-    console.log('moved', movedColor)
     return false
   }
 
