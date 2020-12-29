@@ -1,21 +1,25 @@
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
 class Conversions {
-  /*
-  This function takes a 'coordinate' in chess notation, i.g. e2, g3
-  and converts it to matrix coordinates [y, x]. Matrix is zero-indexed, orientated
-  such that black is at the top of the board, and y=0 is at the top of the board
-  */
-  static chessToMatrix (notation) {
-    return [8 - parseInt(notation.charAt(1)), letters.indexOf(notation.charAt(0))]
+  /**
+   * Converts passed alebraic notation into an easily workable x, y coordinate
+   * @param  {string} notation algebraic notation for a chess piece position
+   * @return {object} object with x, y properties, [a->0,..., h->7], [1->0,...,8->7]
+   */
+  static algebraicToCoords (notation) {
+    return {
+      x: letters.indexOf(notation.charAt(0)),
+      y: parseInt(notation.charAt(1)) - 1
+    }
   }
 
-  /*
-  This function takes matrix coordinates in the same format as the function above
-  and converts them into chess notation coordinates
-  */
-  static matrixToChess (coords) {
-    return letters[coords[1]] + -1 * (coords[0] - 8)
+  /**
+   * Converts from a coordinate object to algebraic position string
+   * @param  {object} coords, object with x, y properties representing a chess piece position
+   * @return {object} algebraic position string, '{a<-0,..., h<-7}{1<-0,...,8<-7}'
+   */
+  static coordsToAlgebraic (coords) {
+    return letters[coords.x] + (coords.y + 1)
   }
 }
 

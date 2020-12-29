@@ -1,215 +1,140 @@
 import Conversions from '../conversions/Conversions'
+import Pawn from './pieces/Pawn'
 
+const defaultBoard = {
+  a2: new Pawn('w', 'a2'),
+  b2: new Pawn('w', 'b2'),
+  c2: new Pawn('w', 'c2'),
+  d2: new Pawn('w', 'd2'),
+  e2: new Pawn('w', 'e2'),
+  f2: new Pawn('w', 'f2'),
+  g2: new Pawn('w', 'g2'),
+  h2: new Pawn('w', 'h2'),
+  a7: new Pawn('b', 'a7'),
+  b7: new Pawn('b', 'b7'),
+  c7: new Pawn('b', 'c7'),
+  d7: new Pawn('b', 'd7'),
+  e7: new Pawn('b', 'e7'),
+  f7: new Pawn('b', 'f7'),
+  g7: new Pawn('b', 'g7'),
+  h7: new Pawn('b', 'h7'),
+
+  whiteCastlingStatus: [true, true],
+  blackCastlingStatus: [true, true],
+  enPassantSquare: ''
+}
+
+// Class to keep track of game state
 class ChessGame {
   constructor () {
-    this.board = [
-      ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-      ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-      [' ', ' ', ' ', 'p', ' ', ' ', ' ', ' '],
-      [' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '],
-      [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-      ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-      ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-    ]
+    this.board = Object.assign({}, defaultBoard)
+
     this.whoseMove = 'w' // w or b
-    this.whiteCastlingStatus = [true, true] // queenside, kingside
-    this.blackCastlingStatus = [true, true]
-    this.enPassantOption = [-1, -1] // (y, x) for the en passant capture
     this.halfMoveClock = 0
     this.fullMoveNumber = 1
 
     this.moveHistory = []
   }
 
-  /*
-  Check the square in the matrix. Return 0 if empty, -1 if black, 1 if white
-  */
-  getColor (position) {
-    const piece = this.board[position[0]][position[1]]
-    if (piece === ' ') return 0
-    else if (piece.toLowerCase() === piece) return -1
-    else return 1
+  /**
+   * A method to determine if a move is legal given the current state of the game
+   * @param  {string} start start position of the piece being moved, in algebraic notation
+   * @param  {string} end end position of the piece being moved, in algebraic notation
+   * @param  {string} piece string representing which piece is being moved
+   * @returns {bool} true if the passed move, false otherwise
+   */
+  isValid (start, end) {
+    if (!(start in this.board)) throw new Error('Piece not found in the board')
+
+    console.log(this.board[start])
+    const legalMoves = this.board[start].getLegalMoves(this.board)
+    return legalMoves.includes(end) && !this.board[start].isOpposite(this.whoseMove)
   }
 
-  /*
-  Pawn legal squares, ignore possible king exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-  pawnLegalMoves (position) {
-    // Convert to matrix coordinates
-    const availablePositions = []
-    const coords = Conversions.chessToMatrix(position)
-    const isWhite = this.board[coords[0]][coords[1]] === 'P'
+  executeMove (start, end) {
+    // Check if the move is legal
+    if (this.isValid(start, end)) {
+      // Important values
+      const isCapture = end in this.board
+      const oppositeColor = this.board[start].isWhite() ? 'b' : 'w'
 
-    // Set analyzed rank for distance 1 moves
-    const firstRank = isWhite ? coords[0] - 1 : coords[0] + 1
+      // Update the piece positions
+      this.board[start].move(end)
+      this.board[end] = this.board[start]
+      delete this.board[start]
 
-    // Check diagonal moves for black pieces
-    const oppositeColor = isWhite ? -1 : 1
-    const file1 = coords[1] + 1
-    const file2 = coords[1] - 1
-    if (file1 < 8 && this.getColor([firstRank, file1]) === oppositeColor) {
-      availablePositions.push(Conversions.matrixToChess([firstRank, file1]))
-    }
-    if (file2 >= 0 && this.getColor([firstRank, file2]) === oppositeColor) {
-      availablePositions.push(Conversions.matrixToChess([firstRank, file2]))
-    }
+      // Update the en passant square
+      if (this.board[end].getFEN().toLowerCase() === 'p') {
+        const startCoord = Conversions.algebraicToCoords(start)
+        const endCoord = Conversions.algebraicToCoords(end)
+        if (Math.abs(startCoord.y - endCoord.y) === 2) {
+          const enPassantCoords = { x: startCoord.x, y: (startCoord.y + endCoord.y) / 2 }
+          this.board.enPassantSquare = Conversions.coordsToAlgebraic(enPassantCoords)
+        } else this.board.enPassantSquare = ''
+      } else this.board.enPassantSquare = ''
 
-    // Check for en passant move
-    if ([firstRank, file1] === this.enPassantOption) {
-      availablePositions.push(Conversions.matrixToChess([firstRank, file1]))
-    }
-    if ([firstRank, file2] === this.enPassantOption) {
-      availablePositions.push(Conversions.matrixToChess([firstRank, file2]))
-    }
+      // TODO : Update the castling status
+      // TODO : Disallow moves based on threats
 
-    // Check for normal forward move
-    let canMove1
-    if (firstRank < 0 || firstRank > 7) throw new Error('Illegal pawn on board')
-    else if (this.getColor([firstRank, coords[1]]) === 0) {
-      availablePositions.push(Conversions.matrixToChess([firstRank, coords[1]]))
-      canMove1 = true
-    }
+      // Update game metadata
+      this.halfMoveClock = isCapture ? 0 : this.halfMoveClock + 1
+      this.fullMoveNumber = oppositeColor === 'w' ? this.fullMoveNumber + 1 : this.fullMoveNumber
 
-    // Check if the pawn may move two squares
-    const checkTwo = (isWhite && coords[0] === 6) || (!isWhite && coords[0] === 1)
-    if (checkTwo && canMove1 && this.getColor([coords[0] + oppositeColor * 2, coords[1]]) === 0) {
-      availablePositions.push(Conversions.matrixToChess([coords[0] + oppositeColor * 2, coords[1]]))
+      // Update whose turn it is
+      this.whoseMove = oppositeColor
+    } else {
+      throw new Error('Illegal move passed into executeMove()')
     }
-
-    return availablePositions
   }
 
-  /*
-  Rook legal squares, ignore possible king exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-
-  /*
-  Knight legal squares, ignore possible king exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-
-  /*
-  Bishop legal squares, ignore possible king exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-
-  /*
-  Queen legal squares, ignore possible king exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-
-  /*
-  King legal squares, ignore possible exposure to check
-  Position in algebraic notation
-  Returns in algebraic notation
-  */
-
-  /*
-  Static. Checks if the current board results in either the white or black king
-  being in check from ray pieces
-  */
-
-  /*
-  Checks to see whether a given move is valid given the current state of the game
-  Returns true if valid, false otherwise
-  */
-  isValid (start, end, piece) {
-    const startCoords = Conversions.chessToMatrix(start)
-
-    // Make sure the pieces match the board state
-    const thisPiece = this.board[startCoords[0]][startCoords[1]]
-    if (thisPiece.toLowerCase() === thisPiece) {
-      if (!(piece === 'b' + thisPiece.toUpperCase())) {
-        throw new Error('Pieces do not match between chessboard.js and ChessGame')
-      }
-    } else if (!(piece === 'w' + thisPiece)) {
-      throw new Error('Pieces do not match between chessboard.js and ChessGame')
-    }
-
-    // Make sure the piece color matches the current mover
-    let movedColor = 'w'
-    if (thisPiece.toLowerCase() === thisPiece) movedColor = 'b'
-    if (this.whoseMove !== movedColor) return false
-
-    // Check if the move is valid for the piece
-    let legalMoves
-    switch (thisPiece.toLowerCase()) {
-      case 'p':
-        legalMoves = this.pawnLegalMoves(start)
-        break
-      default:
-        throw new Error('Piece passed into switch statement is undefined')
-    }
-    console.log(legalMoves)
-    if (legalMoves.includes(end)) return true
-
-    // TODO : Check if the move exposes the king to check
-
-    return false
-  }
-
-  /*
-  Execute a move on the current game, update the move history for the game
-  */
-  executeMove (start, end, piece) {
-
-  }
-
-  /*
-  Undo the last move of the game
-  */
   undoMove () {
-
   }
 
+  /**
+   * Returns the FEN string for the board position
+   */
   getFEN () {
+    // Field 1
     let fenString = ''
-
-    // Field 1, Board Representation
-    this.board.forEach(function (file, index) {
-      let fileString = ''
-      let spaceCounter = 0
-      file.forEach(function (val, index) {
-        if (val === ' ') spaceCounter++
-        else {
-          fileString += spaceCounter !== 0 ? spaceCounter : ''
-          fileString += val
-          spaceCounter = 0
-        }
-
-        if (val === ' ' && index === 7) fileString += spaceCounter
-      })
-      fenString += fileString
-      if (index !== 7) fenString += '/'
-    })
-
-    // Field 2, which color to move
-    fenString += ' ' + this.whoseMove
-
-    // Field 3, castling status
+    let algebraicCoords = ''
+    for (let y = 7; y >= 0; y--) {
+      let counter = 0
+      for (let x = 0; x < 8; x++) {
+        algebraicCoords = Conversions.coordsToAlgebraic({ x: x, y: y })
+        if (algebraicCoords in this.board) {
+          if (counter !== 0) {
+            fenString += counter
+            counter = 0
+          }
+          fenString += this.board[algebraicCoords].getFEN()
+        } else counter++
+      }
+      if (counter !== 0) {
+        fenString += counter
+        counter = 0
+      }
+      if (y !== 0) fenString += '/'
+    }
     fenString += ' '
-    if (this.whiteCastlingStatus[1]) fenString += 'K'
-    if (this.whiteCastlingStatus[0]) fenString += 'Q'
-    if (this.blackCastlingStatus[1]) fenString += 'k'
-    if (this.blackCastlingStatus[0]) fenString += 'q'
 
-    // Field 4, en passant capture square
+    // Field 2
+    fenString += this.whoseMove + ' '
+
+    // Field 3
+    if (this.board.whiteCastlingStatus[1]) fenString += 'K'
+    if (this.board.whiteCastlingStatus[0]) fenString += 'Q'
+    if (this.board.blackCastlingStatus[1]) fenString += 'k'
+    if (this.board.blackCastlingStatus[0]) fenString += 'q'
     fenString += ' '
-    fenString += this.enPassantOption === [-1, -1] ? '-' : Conversions.matrixToChess(this.enPassantOption)
 
-    // Field 5, halfmove clock
-    fenString += ' ' + this.halfMoveClock
+    // Field 4
+    fenString += this.board.enPassantSquare === '' ? '- ' : this.board.enPassantSquare + ' '
 
-    // Field 6, fullmove number
-    fenString += ' ' + this.fullMoveNumber
+    // Field 5
+    fenString += this.fullMoveNumber + ' '
+
+    // Field 6
+    fenString += this.halfMoveClock
 
     return fenString
   }

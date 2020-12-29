@@ -17,17 +17,12 @@ class ChessBoard extends React.Component {
 
   onDrop (source, target, piece, newPos, oldPos, orientation) {
     // Check to make sure the move is valid
-    if (this.state.game.isValid(source, target, piece)) {
-      console.log('That was a valid move')
+    if (this.state.game.isValid(source, target)) {
+      this.state.game.executeMove(source, target)
     } else {
-      console.log('That was not a valid move')
       return 'snapback'
     }
   }
-
-  // TODO : Use callbacks to register game state in the interface
-  // TODO : Use ChessGame in order to set up the state of the board
-  // TODO : Conditionally update based on the state of the chess game, do not update if matches the UI state
 
   render () {
     return (
