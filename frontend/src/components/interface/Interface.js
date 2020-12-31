@@ -19,11 +19,12 @@ class Interface extends React.Component {
     }
   }
 
+  // TODO : Figure out how to output shit
   render () {
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <ChessBoard game={this.state.game} />
-        <ChessTerminal game={this.state.game} />
+        <ChessTerminal output={this.state.game.output} />
       </div>
     )
   }

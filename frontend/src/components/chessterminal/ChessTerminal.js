@@ -12,7 +12,7 @@ class ChessTerminal extends React.Component {
     super(props)
 
     this.state = {
-      game: props.game
+      out: props.output
     }
   }
 
@@ -20,7 +20,7 @@ class ChessTerminal extends React.Component {
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <Terminal
-          welcomeMessage={"I'm Checkmate, a chess A.I."}
+          welcomeMessage={this.state.out}
           commands={{}}
           style={{
             width: '300px',
