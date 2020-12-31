@@ -3,11 +3,10 @@ import React from 'react'
 // Styling
 import './Interface.css'
 import '../../common/themes.css'
-import THEMES from '../../common/themes.js'
 
 // Chessboard and terminal imports
-import Terminal from 'react-console-emulator'
 import ChessBoard from '../chessboard/ChessBoard'
+import ChessTerminal from '../chessterminal/ChessTerminal'
 
 // Chess game object
 import ChessGame from '../../common/chessgame/ChessGame'
@@ -24,16 +23,7 @@ class Interface extends React.Component {
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <ChessBoard game={this.state.game} />
-        <Terminal
-          welcomeMessage={"I'm Checkmate, a chess A.I."}
-          commands={{}}
-          style={{
-            width: '300px',
-            maxHeight: '550px',
-            backgroundColor: THEMES.dark.terminal
-          }}
-          readOnly
-        />
+        <ChessTerminal game={this.state.game} />
       </div>
     )
   }

@@ -9,6 +9,7 @@ class ChessBoard extends React.Component {
     super(props)
 
     this.state = {
+      fen: props.game.getFEN(),
       game: props.game
     }
 
@@ -16,13 +17,18 @@ class ChessBoard extends React.Component {
   }
 
   onDrop (source, target, piece, newPos, oldPos, orientation) {
+    // TODO : Detect and handle promotion
+    const newPiece = null
+
     // Check to make sure the move is valid
-    if (this.state.game.isValid(source, target)) {
-      this.state.game.executeMove(source, target)
-    } else {
+    if (!this.state.game.executeMove(source, target, newPiece)) {
       return 'snapback'
     }
+
+    this.setState({ fen: this.state.game.getFEN() })
   }
+
+  // TODO : Use onMoveEnd to handle more obscure cases
 
   render () {
     return (
@@ -35,7 +41,7 @@ class ChessBoard extends React.Component {
           draggable: true,
           showNotation: true,
           pieceTheme: 'img/chesspieces/alpha/{piece}.png',
-          position: this.state.game.getFEN(),
+          position: this.state.fen,
           onDrop: this.onDrop
         }}
         width='550px'
