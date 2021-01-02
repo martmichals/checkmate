@@ -32,6 +32,10 @@ class ChessBoard extends React.Component {
     if (this.game.complexLast()) this.setState({ fen: this.game.getFEN() })
   }
 
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    // TODO : Use a diff method to update state based on props
+  }
+
   render () {
     return (
       <ChessboardJs

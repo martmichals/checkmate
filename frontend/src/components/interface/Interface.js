@@ -11,20 +11,49 @@ import ChessTerminal from '../chessterminal/ChessTerminal'
 // Chess game object
 import ChessGame from '../../common/chessgame/ChessGame'
 
+// Bootstrap button
+import Button from 'react-bootstrap/Button'
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 class Interface extends React.Component {
   constructor (props) {
     super(props)
+
     this.state = {
-      game: new ChessGame()
+      game: new ChessGame(this.appendToOutput),
+      output: []
     }
+
+    this.resetGame = this.resetGame.bind(this)
   }
 
-  // TODO : Figure out how to output shit
+  appendToOutput = (message) => {
+    const out = this.state.output
+    out.push(message)
+    this.setState({
+      output: out
+    })
+  }
+
+  resetGame () {
+    this.setState({
+      game: new ChessGame(this.appendToOutput)
+    })
+    this.appendToOutput('Game has been reset')
+  }
+
   render () {
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <ChessBoard game={this.state.game} />
-        <ChessTerminal output={this.state.game.output} />
+        <div>
+          <ChessTerminal style={{position: 'absolute'}} output={this.state.output} />
+          <Button 
+          variant='dark' 
+          className='button left-btn'
+          onClick={this.resetGame}>Reset</Button>
+          <Button variant='dark' className='button right-btn'>Play as {"OTHER"}</Button>
+        </div>
       </div>
     )
   }

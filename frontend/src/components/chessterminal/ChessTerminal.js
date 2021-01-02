@@ -11,20 +11,29 @@ class ChessTerminal extends React.Component {
   constructor (props) {
     super(props)
 
-    this.state = {
-      out: props.output
-    }
+    this.terminal = React.createRef()
+    this.out = []
+  }
+
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    const linesToPush = this.props.output.slice(this.out.length)
+    linesToPush.forEach(line => {
+      this.terminal.current.pushToStdout(line)
+      // this.terminal.current.scrollToBottom()
+    })
+    this.out = this.out.concat(linesToPush)
   }
 
   render () {
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <Terminal
-          welcomeMessage={this.state.out}
+          welcomeMessage={["I'm Checkmate, a chess A.I"]}
+          ref={this.terminal}
           commands={{}}
           style={{
             width: '300px',
-            maxHeight: '550px',
+            height: '500px',
             backgroundColor: THEMES.dark.terminal
           }}
           readOnly

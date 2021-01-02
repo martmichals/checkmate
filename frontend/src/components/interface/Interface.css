@@ -3,6 +3,28 @@
   flex-wrap: wrap;
 }
 
+.btn-dark {
+  width: 148px;
+  height: 45px;
+  margin-top: 2px !important;
+
+  border-color: var(--button) !important;
+  background-color: var(--button) !important;
+}
+
+.btn-dark:hover {
+  border-color: var(--scrollbar) !important;
+  background-color: var(--scrollbar) !important;
+}
+
+.right-btn {
+  margin-left: 1px !important;
+}
+
+.left-btn {
+  margin-right: 1px !important;
+}
+
 ::-webkit-scrollbar{
 	width: 7px;
 }
