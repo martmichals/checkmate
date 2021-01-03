@@ -28,12 +28,15 @@ class ChessBoard extends React.Component {
     }
   }
 
-  onSnapEnd (newPos, oldPos) {
-    if (this.game.complexLast()) this.setState({ fen: this.game.getFEN() })
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    if (prevProps.game !== this.props.game) {
+      this.game = this.props.game
+      this.setState({ fen: this.game.getFEN() })
+    }
   }
 
-  componentDidUpdate (prevProps, prevState, snapshot) {
-    // TODO : Use a diff method to update state based on props
+  onSnapEnd (newPos, oldPos) {
+    this.setState({ fen: this.game.getFEN() })
   }
 
   render () {
@@ -46,6 +49,7 @@ class ChessBoard extends React.Component {
         config={{
           draggable: true,
           showNotation: true,
+          orientation: this.game.getUserColor(),
           pieceTheme: 'img/chesspieces/alpha/{piece}.png',
           position: this.state.fen,
           onDrop: this.onDrop,

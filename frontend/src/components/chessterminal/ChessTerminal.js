@@ -34,6 +34,7 @@ class ChessTerminal extends React.Component {
           style={{
             width: '300px',
             height: '500px',
+            textAlign: 'left',
             backgroundColor: THEMES.dark.terminal
           }}
           readOnly
