@@ -10,16 +10,36 @@ class ChessGame {
 
   getFEN () { return this.game.fen() }
 
-  // TODO : Handle promotion
   executeMove (source, target, newPiece) {
-    const res = this.game.move({ to: target, from: source })
+    if (this.game.game_over()) return false
+    const res = this.game.move({ to: target, from: source, promotion: newPiece })
 
+    // Normal move
     if (res !== null && res.color === 'b') {
       const history = this.game.history()
       const moveNumber = Math.floor((history.length + 1) / 2)
       this.outputMethod(moveNumber + '.  ' +
-      history[history.length - 1] + '  ' +
-      history[history.length - 2])
+      history[history.length - 2] + '  ' +
+      history[history.length - 1])
+    }
+
+    // Detect end of game
+    if (this.game.game_over()) {
+      // Edge case move printout
+      if (this.game.turn() === 'b') {
+        const history = this.game.history()
+        const moveNumber = Math.floor((history.length + 1) / 2)
+        this.outputMethod(moveNumber + '.  ' +
+        history[history.length - 1])
+      }
+
+      // End of game message
+      const possibleWinner = this.game.turn() === 'w' ? 'Black' : 'White'
+      if (this.game.in_checkmate()) this.outputMethod('Checkmate! ' + possibleWinner + ' wins!')
+      else if (this.game.in_stalemate()) this.outputMethod('Stalemate!')
+      else if (this.game.in_threefold_repetition()) this.outputMethod('Draw due to threefold repition!')
+      else if (this.game.insufficient_material()) this.outputMethod('Draw due to insufficient material!')
+      else if (this.game.in_draw()) this.outputMethod('Draw due to the 50 move rule!')
     }
 
     return res !== null
@@ -31,18 +51,14 @@ class ChessGame {
     return history[history.length - 1]
   }
 
-  // Returns true if the last move was castling or en passant
-  complexLast () {
-    const history = this.game.history({ verbose: true })
-    const flag = history[history.length - 1].flags
-    return (flag === 'k' || flag === 'e' || flag === 'q')
-  }
-
   // Returns the user's color, "white" or "black"
   getUserColor () { return this.userColor }
 
   // Returns the opponent's color
   getOpponentColor () { return this.userColor === 'white' ? 'black' : 'white' }
+
+  // Capitalized version
+  getOpponentColorCap () { return this.userColor === 'white' ? 'Black' : 'White' }
 }
 
 export default ChessGame

@@ -41,20 +41,19 @@ class Interface extends React.Component {
     this.setState({
       game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getUserColor())
     })
-    this.appendToOutput('The Game has been reset')
+    this.appendToOutput("I've reset the game for you")
   }
 
   handleSwap () {
     this.setState({
       game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getOpponentColor())
     })
-    this.appendToOutput('The Game has been reset')
+    this.appendToOutput("I've reset the game for you")
   }
 
   render () {
     // Opponent color
-    let opponentColor = this.state.game.getOpponentColor()
-    opponentColor = opponentColor.substring(0, 1).toUpperCase() + opponentColor.substring(1)
+    const opponentColor = this.state.game.getOpponentColorCap()
     return (
       <div className='boardTerminalContainer' theme='dark'>
         <ChessBoard game={this.state.game} />
