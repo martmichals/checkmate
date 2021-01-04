@@ -16,9 +16,9 @@ npm start
 ```
 
 As of right now, the "A.I." merely plays random moves. You can inspect move logic
-on the frontend in this [file](frontend/common/chessgame/ChessGame.js). You 
+on the frontend in this [file](frontend/src/common/chessgame/ChessGame.js). You 
 can work on the actual React component that make up the U.I in this 
-[folder](frontend/components/).
+[folder](frontend/src/components/).
 
 ## Backend
 
