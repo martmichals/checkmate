@@ -15,13 +15,16 @@ import ChessGame from '../../common/chessgame/ChessGame'
 import Button from 'react-bootstrap/Button'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+// Bot type
+const autoType = 'random'
+
 class Interface extends React.Component {
   constructor (props) {
     super(props)
 
     const userColor = Math.floor(Math.random() * 2) === 0 ? 'white' : 'black'
     this.state = {
-      game: new ChessGame((message) => { this.appendToOutput(message) }, userColor),
+      game: new ChessGame((message) => { this.appendToOutput(message) }, userColor, autoType),
       output: []
     }
 
@@ -39,14 +42,14 @@ class Interface extends React.Component {
 
   handleReset () {
     this.setState({
-      game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getUserColor())
+      game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getUserColor(), autoType)
     })
     this.appendToOutput("I've reset the game for you")
   }
 
   handleSwap () {
     this.setState({
-      game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getOpponentColor())
+      game: new ChessGame((message) => { this.appendToOutput(message) }, this.state.game.getOpponentColor(), autoType)
     })
     this.appendToOutput("I've reset the game for you")
   }

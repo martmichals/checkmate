@@ -12,6 +12,7 @@ class ChessBoard extends React.Component {
 
     this.state = {
       fen: props.game.getFEN(),
+      orientation: this.game.getUserColor(),
       promotionPopup: false
     }
 
@@ -39,8 +40,9 @@ class ChessBoard extends React.Component {
           const newPiece = piece.toLowerCase()
           if (!this.game.executeMove(source, target, newPiece)) return 'snapback'
           this.setState({
-            fen: this.game.getFEN(),
             promotionPopup: false
+          }, function () {
+            this.onSnapEnd()
           })
         },
         square: target
@@ -48,15 +50,30 @@ class ChessBoard extends React.Component {
     })
   }
 
-  componentDidUpdate (prevProps, prevState, snapshot) {
-    if (prevProps.game !== this.props.game) {
-      this.game = this.props.game
+  onSnapEnd (newPos, oldPos) {
+    this.setState({ fen: this.game.getFEN() })
+
+    if (this.game.nextMoveAutomated()) {
+      this.game.executeAutomatedMove()
       this.setState({ fen: this.game.getFEN() })
     }
   }
 
-  onSnapEnd (newPos, oldPos) {
-    this.setState({ fen: this.game.getFEN() })
+  componentDidUpdate (prevProps, prevState, snapshot) {
+    if (prevProps.game !== this.props.game) {
+      this.game = this.props.game
+      if (this.game.nextMoveAutomated()) this.game.executeAutomatedMove()
+      this.setState({ orientation: this.game.getUserColor() }, function () {
+        this.setState({ fen: this.game.getFEN() })
+      })
+    }
+  }
+
+  componentDidMount () {
+    if (this.game.nextMoveAutomated()) {
+      this.game.executeAutomatedMove()
+      this.setState({ fen: this.game.getFEN() })
+    }
   }
 
   render () {
@@ -70,7 +87,7 @@ class ChessBoard extends React.Component {
         config={{
           draggable: true,
           showNotation: true,
-          orientation: this.game.getUserColor(),
+          orientation: this.state.orientation,
           pieceTheme: 'img/chesspieces/alpha/{piece}.png',
           position: this.state.fen,
           onDrop: this.onDrop,

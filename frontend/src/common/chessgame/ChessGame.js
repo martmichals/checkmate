@@ -2,18 +2,57 @@ import Chess from 'chess.js'
 
 // Class to describe a generic game of chess, with output
 class ChessGame {
-  constructor (outputMethod, userColor) {
+  constructor (outputMethod, userColor, autoType) {
     this.game = new Chess()
     this.outputMethod = outputMethod
     this.userColor = userColor
+    this.autoType = autoType
   }
 
   getFEN () { return this.game.fen() }
 
+  executeAutomatedMove () {
+    switch (this.autoType) {
+      case 'random':
+        this.executeRandomMove()
+        break
+      case 'api':
+        console.log('Excuting a move via API')
+        break
+      default:
+        throw new Error(this.autoType, 'is not a valid automated move type')
+    }
+  }
+
+  executeRandomMove () {
+    if (this.game.game_over()) return false
+
+    const possibleMoves = this.game.moves()
+    const randomIdx = Math.floor(Math.random() * possibleMoves.length)
+    const res = this.game.move(possibleMoves[randomIdx])
+
+    this.printPostMove(res)
+
+    return res !== null
+  }
+
   executeMove (source, target, newPiece) {
     if (this.game.game_over()) return false
+
+    // Validate the piece moved is the proper color
+    const piece = this.game.get(source)
+    if (piece === null || piece.color !== this.userColor.charAt(0)) return false
+
+    // Attempt the move in game
     const res = this.game.move({ to: target, from: source, promotion: newPiece })
 
+    // Print out post move to the terminal
+    this.printPostMove(res)
+
+    return res !== null
+  }
+
+  printPostMove (res) {
     // Normal move
     if (res !== null && res.color === 'b') {
       const history = this.game.history()
@@ -41,8 +80,6 @@ class ChessGame {
       else if (this.game.insufficient_material()) this.outputMethod('Draw due to insufficient material!')
       else if (this.game.in_draw()) this.outputMethod('Draw due to the 50 move rule!')
     }
-
-    return res !== null
   }
 
   // Returns the last move in algebraic notation
@@ -50,6 +87,9 @@ class ChessGame {
     const history = this.game.history()
     return history[history.length - 1]
   }
+
+  // Returns true if the next move is meant to be an automatic move
+  nextMoveAutomated () { return this.game.turn() !== this.userColor.charAt(0) }
 
   // Returns the user's color, "white" or "black"
   getUserColor () { return this.userColor }
