@@ -8,7 +8,7 @@ in `checkmate/backend`.
 
 ## Frontend
 
-The frontend was implimented with React (`Node.js` required).
+The frontend was implemented with React (`Node.js` required).
 Start it up with the following command in `checkmate/frontend`: <br>
 
 ```bash
