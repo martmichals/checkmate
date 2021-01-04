@@ -1,6 +1,9 @@
 # Package lock
 package-lock.json
 
+# Secrets
+backend/app/secrets.js
+
 #                                                                                   #
 # The following code is from a github gitignore template, it can be found here:     #
 # https://github.com/github/gitignore/blob/master/Node.gitignore                    #
