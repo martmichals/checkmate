@@ -1,34 +1,79 @@
 module.exports = function (app, db) {
-  app.post('/api/create-game', (req, res) => {
-    console.log('Creating a new game object')
-    console.log(req.body)
-    const dbo = db.db('games')
-    dbo.collection('chessgames').insertOne({
-      initialState: req.body.fen,
-      isFinished: '',
-      timeCreated: '',
-      moves: []
-    }, function (err, res) {
-      if (err) throw err
-      console.log('Inserted document')
-    })
+  app.post('/api/game', async (req, res) => {
+    // Request execution
+    const fenCheck = checkFen(req.body.fen)
+    if (fenCheck === '') {
+      // Gather data for insertion
+      const database = db.db('games')
+      const collection = database.collection('chessgames')
+      const doc = {
+        initialState: req.body.fen,
+        currentState: req.body.fen,
+        isFinished: false,
+        timeCreated: new Date(),
+        moves: []
+      }
 
-    // TODO : Move this into the callback
-    res.status(200)
-    res.json({
-      result: 'Success'
-    })
+      // Insert, handling errors on the way
+      try {
+        const result = await collection.insertOne(doc)
+        res.status(200)
+        res.json({
+          id: result.ops[0]._id
+        })
+      } catch (err) {
+        res.status(400)
+        res.json({
+          error: 'Unable to upload the game to database'
+        })
+      }
+    } else {
+      res.status(400)
+      res.json({
+        error: fenCheck
+      })
+    }
   })
 
-  app.post('/api/make-move', (req, res) => {
-    console.log('Getting the game with ID', 'UNDEFINED')
-  })
+  app.delete('/api/game', async (req, res) => {
+    // Request execution
+    if (req.body.id) {
+      // Gather data for deletion
+      const mongodb = require('mongodb')
+      const collection = db.db('games').collection('chessgames')
 
-  app.get('/api/generate-move', (req, res) => {
-    console.log('Generating a move for the game')
+      // Delete the document from the database
+      try {
+        const query = { _id: new mongodb.ObjectId(req.body.id) }
+        const result = await collection.deleteOne(query)
+        if (result.deletedCount === 0) throw new Error('Nothing deleted')
+        res.status(200)
+        res.json({})
+      } catch (err) {
+        res.status(400)
+        res.json({
+          error: 'there is no game with the passed id'
+        })
+      }
+    } else {
+      res.status(400)
+      res.json({
+        error: 'id parameter is not well defined in the request'
+      })
+    }
   })
+}
 
-  app.delete('api/delete-game', (req, res) => {
-    console.log('Deleting a game')
-  })
+function checkFen (fen) {
+  if (fen) {
+    const { Chess } = require('chess.js')
+    const chess = new Chess()
+
+    const validationObj = chess.validate_fen(fen)
+    if (!validationObj.valid) return validationObj.error
+
+    const game = new Chess(fen)
+    if (game.game_over()) return 'fen represents a game that is already completed'
+    return ''
+  } else return 'fen parameter not well defined in the request'
 }
