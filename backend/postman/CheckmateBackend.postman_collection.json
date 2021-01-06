@@ -1,0 +1,811 @@
+{
+	"info": {
+		"_postman_id": "272be08e-c2cc-4277-991d-6111cf8784fa",
+		"name": "CheckmateBackend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Game Creation & Deletion",
+			"item": [
+				{
+					"name": "Create a game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns id', function() {\r",
+									"    pm.response.to.be.ok\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"\r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData).to.have.property('id')\r",
+									"    pm.globals.set('game_id', jsonData.id)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "fen",
+									"value": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a game with bad fen",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('1st field (piece positions) is invalid [row too large].')\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "fen",
+									"value": "rnb/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a game that is already finished",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('fen represents a game that is already completed')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "fen",
+									"value": "rnbqkbnr/pp3Qpp/2pp4/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a game with no fen",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('fen parameter not well defined in the request')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a game that does not exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('there is no game with the passed id')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "lolidontexist",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a game without id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('id parameter is not well defined in the request')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "{{game_id}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Move Addition",
+			"item": [
+				{
+					"name": "Create a game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns id', function() {\r",
+									"    pm.response.to.be.ok\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"\r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData).to.have.property('id')\r",
+									"    pm.globals.set('game_id', jsonData.id)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "fen",
+									"value": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute a valid move",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 300ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(300)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "{{game_id}}",
+									"type": "text"
+								},
+								{
+									"key": "from",
+									"value": "e2",
+									"type": "text"
+								},
+								{
+									"key": "to",
+									"value": "e4",
+									"type": "text"
+								},
+								{
+									"key": "promotion",
+									"value": "",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/api/move",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"move"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Execute an invalid move",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('the move passed was not valid')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "{{game_id}}",
+									"type": "text"
+								},
+								{
+									"key": "from",
+									"value": "e1",
+									"type": "text"
+								},
+								{
+									"key": "to",
+									"value": "h8",
+									"type": "text"
+								},
+								{
+									"key": "promotion",
+									"value": "",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/api/move",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"move"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Omit a parameter from a move request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('missing a required parameter in the request, one of: [id, from, to, promotion]')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "{{game_id}}",
+									"type": "text"
+								},
+								{
+									"key": "from",
+									"value": "e1",
+									"type": "text"
+								},
+								{
+									"key": "to",
+									"value": "h8",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/api/move",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"move"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Try a move for a non-existent game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(400)\r",
+									"})\r",
+									"\r",
+									"pm.test('Response returns proper error', function() {\r",
+									"    pm.response.to.be.badRequest\r",
+									"    pm.response.to.be.withBody\r",
+									"    pm.response.to.be.json\r",
+									"    \r",
+									"    const jsonData = pm.response.json()\r",
+									"    pm.expect(jsonData.error).to.eql('failed to find a game with that id')\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "notanid",
+									"type": "text"
+								},
+								{
+									"key": "from",
+									"value": "e1",
+									"type": "text"
+								},
+								{
+									"key": "to",
+									"value": "h8",
+									"type": "text"
+								},
+								{
+									"key": "promotion",
+									"value": "",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{url}}/api/move",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"move"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+									"})\r",
+									"\r",
+									"pm.test('Status test', function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "{{game_id}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{url}}/api/game",
+							"protocol": "http",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"game"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get the version",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200)\r",
+							"})\r",
+							"\r",
+							"pm.test('Status test', function() {\r",
+							"    pm.response.to.have.status(200)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{url}}/api",
+					"protocol": "http",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
