@@ -64,6 +64,8 @@ module.exports = function (app, db) {
 
   app.get('/api/move', (req, res) => {
     // Request execution
+
+    // TODO: Make a native C++ addon with an ABI to implement this part
   })
 }
 

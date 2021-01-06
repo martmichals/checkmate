@@ -63,7 +63,7 @@ module.exports = function (app, db) {
     }
   })
 
-  // TODO : Add a method to get the game state
+  // TODO : API call to get the game status
 }
 
 function checkFen (fen) {
