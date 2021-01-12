@@ -69,6 +69,10 @@ module.exports = function (app, db) {
   })
 }
 
+/*
+ * Try to execute a move, return '' on error, or the current state FEN
+ * string in the case of success
+ */
 function executeMove (moveObj, currFen) {
   const { Chess } = require('chess.js')
   const chess = new Chess(currFen)
