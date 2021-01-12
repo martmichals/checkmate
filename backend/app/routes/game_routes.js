@@ -1,4 +1,35 @@
 module.exports = function (app, db) {
+  app.get('/api/game', async (req, res) => {
+    // Request execution
+    if ('id' in req.body) {
+      // Gather data to get document
+      const mongodb = require('mongodb')
+      const collection = db.db('games').collection('chessgames')
+
+      // Get the relevant document
+      try {
+        const query = { _id: new mongodb.ObjectId(req.body.id) }
+        const result = await collection.findOne(query)
+        if (!result) throw new Error('No document found')
+        res.status(200)
+        res.json({
+          currentState: result.currentState,
+          moves: result.moves
+        })
+      } catch (err) {
+        res.status(400)
+        res.json({
+          error: 'failed to find a game with that id'
+        })
+      }
+    } else {
+      res.status(400)
+      res.json({
+        error: 'id parameter is not well defined in the request'
+      })
+    }
+  })
+
   app.post('/api/game', async (req, res) => {
     // Request execution
     const fenCheck = checkFen(req.body.fen)
@@ -62,8 +93,6 @@ module.exports = function (app, db) {
       })
     }
   })
-
-  // TODO : API call to get the game status
 }
 
 function checkFen (fen) {
