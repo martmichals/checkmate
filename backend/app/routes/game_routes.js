@@ -35,8 +35,7 @@ module.exports = function (app, db) {
     const fenCheck = checkFen(req.body.fen)
     if (fenCheck === '') {
       // Gather data for insertion
-      const database = db.db('games')
-      const collection = database.collection('chessgames')
+      const collection = db.db('games').collection('chessgames')
       const doc = {
         initialState: req.body.fen,
         currentState: req.body.fen,

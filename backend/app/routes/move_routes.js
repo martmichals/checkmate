@@ -62,7 +62,14 @@ module.exports = function (app, db) {
     }
   })
 
-  app.get('/api/move', (req, res) => {
+  app.get('/api/move-random', (req, res) => {
+    // Get the relevant game
+    // Errors on missing/invalid id
+    // Generate a random move with chess.js
+    // Return
+  })
+
+  app.get('/api/move-ai', (req, res) => {
     // Request execution
 
     // TODO: Make a native C++ addon with an ABI to implement this part
