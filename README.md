@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project was created to learn more about A.I. It consists of a frontend who's 
+This project was created to learn more about A.I. It consists of a frontend whos 
 source is in `checkmate/frontend`, as well as a backend, who's source is
 in `checkmate/backend`.
 
